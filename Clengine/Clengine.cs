@@ -1,11 +1,15 @@
 using System;
 using Clengine.External.SDL;
+using Clengine.Input;
+using Clengine.Input.KeyboardInput;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Clengine {
     public class ClengineCore : Game {
+        public static InputController Input { get; protected set; }
+
         public static ClengineCore Instance { get; private set; }
 
 
@@ -66,6 +70,8 @@ namespace Clengine {
 
             VirtualWidth = virtualWidth;
             VirtualHeight = virtualHeight;
+
+            Input = new InputController(new KeyboardListener());
         }
 
         public static void EnableVSYNC() {

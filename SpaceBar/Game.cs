@@ -23,9 +23,14 @@ public class Game : ClengineCore {
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
-        // TODO: Add your update logic here
-
         SetWindowTitle(GetFrameRate().ToString());
+        Input.Update();
+
+        if (Input.Keyboard.HasReleasedUp()) {
+            System.Console.WriteLine("released");
+        }
+
+ 
 
         base.Update(gameTime);
     }
