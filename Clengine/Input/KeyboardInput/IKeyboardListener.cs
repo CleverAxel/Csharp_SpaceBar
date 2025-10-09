@@ -8,11 +8,11 @@ namespace Clengine.Input.KeyboardInput
     public interface IKeyboardListener {
         internal void Update();
 
-        public bool IsPressingLeft();
-        public bool IsPressingRight();
-        public bool IsPressingUp();
-        public bool IsPressingDown();
-        public bool IsPressingSpace();
+        public bool IsKeyDownLeft();
+        public bool IsKeyDownRight();
+        public bool IsKeyDownUp();
+        public bool IsKeyDownDown();
+        public bool IsKeyDownSpace();
 
         public bool HasReleasedLeft();
         public bool HasReleasedRight();

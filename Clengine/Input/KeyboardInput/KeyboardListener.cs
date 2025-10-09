@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Input;
 
 namespace Clengine.Input.KeyboardInput {
@@ -10,43 +6,43 @@ namespace Clengine.Input.KeyboardInput {
         private KeyboardState _prevKeyboardState;
 
         public bool HasReleasedDown() {
-            return _prevKeyboardState.IsKeyDown(Keys.S) && _currentKeyboardState.IsKeyUp(Keys.S);
+            return ClengineCore.WindowHasFocus && _prevKeyboardState.IsKeyDown(Keys.S) && _currentKeyboardState.IsKeyUp(Keys.S);
         }
 
         public bool HasReleasedLeft() {
-            return _prevKeyboardState.IsKeyDown(Keys.D) && _currentKeyboardState.IsKeyUp(Keys.D);
+            return ClengineCore.WindowHasFocus && _prevKeyboardState.IsKeyDown(Keys.D) && _currentKeyboardState.IsKeyUp(Keys.D);
         }
 
         public bool HasReleasedRight() {
-            return _prevKeyboardState.IsKeyDown(Keys.Q) && _currentKeyboardState.IsKeyUp(Keys.Q);
+            return ClengineCore.WindowHasFocus && _prevKeyboardState.IsKeyDown(Keys.Q) && _currentKeyboardState.IsKeyUp(Keys.Q);
         }
 
         public bool HasReleasedUp() {
-            return _prevKeyboardState.IsKeyDown(Keys.Z) && _currentKeyboardState.IsKeyUp(Keys.Z);
+            return ClengineCore.WindowHasFocus && _prevKeyboardState.IsKeyDown(Keys.Z) && _currentKeyboardState.IsKeyUp(Keys.Z);
         }
 
         public bool HasReleasedSpace() {
-            return _prevKeyboardState.IsKeyDown(Keys.Space) && _currentKeyboardState.IsKeyUp(Keys.Space);
+            return ClengineCore.WindowHasFocus && _prevKeyboardState.IsKeyDown(Keys.Space) && _currentKeyboardState.IsKeyUp(Keys.Space);
         }
 
-        public bool IsPressingDown() {
-            return _currentKeyboardState.IsKeyDown(Keys.S);
+        public bool IsKeyDownDown() {
+            return ClengineCore.WindowHasFocus && _currentKeyboardState.IsKeyDown(Keys.S);
         }
 
-        public bool IsPressingLeft() {
-            return _currentKeyboardState.IsKeyDown(Keys.Q);
+        public bool IsKeyDownLeft() {
+            return ClengineCore.WindowHasFocus && _currentKeyboardState.IsKeyDown(Keys.Q);
         }
 
-        public bool IsPressingRight() {
-            return _currentKeyboardState.IsKeyDown(Keys.D);
+        public bool IsKeyDownRight() {
+            return ClengineCore.WindowHasFocus && _currentKeyboardState.IsKeyDown(Keys.D);
         }
 
-        public bool IsPressingUp() {
-            return _currentKeyboardState.IsKeyDown(Keys.Z);
+        public bool IsKeyDownUp() {
+            return ClengineCore.WindowHasFocus && _currentKeyboardState.IsKeyDown(Keys.Z);
         }
 
-        public bool IsPressingSpace() {
-            return _currentKeyboardState.IsKeyDown(Keys.Space);
+        public bool IsKeyDownSpace() {
+            return ClengineCore.WindowHasFocus && _currentKeyboardState.IsKeyDown(Keys.Space);
         }
 
         public void Update() {

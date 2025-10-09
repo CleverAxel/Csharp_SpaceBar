@@ -2,6 +2,7 @@ using System;
 using Clengine.External.SDL;
 using Clengine.Input;
 using Clengine.Input.KeyboardInput;
+using Clengine.Input.MouseInput;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -71,7 +72,7 @@ namespace Clengine {
             VirtualWidth = virtualWidth;
             VirtualHeight = virtualHeight;
 
-            Input = new InputController(new KeyboardListener());
+            Input = new InputController(new KeyboardListener(), new MouseInputListener());
         }
 
         public static void EnableVSYNC() {

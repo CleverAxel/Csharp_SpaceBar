@@ -12,6 +12,10 @@ public class Game : ClengineCore {
 
     protected override void Initialize() {
         base.Initialize();
+
+        Input.Mouse.OnMouseMove += p => {
+            System.Console.WriteLine("Mouse moved");
+        };
     }
 
     protected override void LoadContent() {
@@ -23,12 +27,8 @@ public class Game : ClengineCore {
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
-        SetWindowTitle(GetFrameRate().ToString());
+        // SetWindowTitle(GetFrameRate().ToString());
         Input.Update();
-
-        if (Input.Keyboard.HasReleasedUp()) {
-            System.Console.WriteLine("released");
-        }
 
  
 
