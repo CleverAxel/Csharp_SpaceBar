@@ -17,7 +17,7 @@ namespace Clengine.Input.MouseInput {
         }
 
         private void TriggerOnMouseMove() {
-            if (!_currentPosition.Equals(_prevPosition))
+            if (ClengineCore.WindowHasFocus && OnMouseMove != null && !_currentPosition.Equals(_prevPosition))
                 OnMouseMove(_currentPosition);
         }
 
