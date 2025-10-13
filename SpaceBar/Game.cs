@@ -10,7 +10,7 @@ public class Game : ClengineCore {
 
     private Player _player = new Player();
 
-    public Game() : base("Space Bar", 480, 720, false) {
+    public Game() : base("Space Bar", 560, 720, false) {
     }
 
     protected override void Initialize() {
@@ -26,7 +26,7 @@ public class Game : ClengineCore {
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
-        // SetWindowTitle(GetFrameRate().ToString());
+        SetWindowTitle(GetFrameRate().ToString());
         Input.Update();
         _player.Update();
 

@@ -14,8 +14,8 @@ namespace SpaceBar.Entities {
         private Vector2 prevDirection = Vector2.Zero;
         private Vector2 directionDecc = Vector2.Zero;
 
-        const float ACCELERATION = 1800.0f;
-        const float DECCELERATION = 750.0f;
+        const float ACCELERATION_FACTOR = 1800.0f;
+        const float DECCELERATION_FACTOR = 750.0f;
         const float MAX_VELOCITY = 500.0f;
 
         Texture2D color;
@@ -41,20 +41,21 @@ namespace SpaceBar.Entities {
         private void Displace(float dT) {
             bool movingHorizontally = direction.X == -1 || direction.X == 1;
             bool movingVertically = direction.Y == -1 || direction.Y == 1;
-            bool movingDiagonally = movingHorizontally && movingVertically;
 
             if (movingVertically) {
                 prevDirection.Y = direction.Y;
                 startYDeccelerating = false;
 
-                velocity.Y += direction.Y * ACCELERATION * dT;
-                velocity.Y = MathHelper.Clamp(velocity.Y, -MAX_VELOCITY, MAX_VELOCITY);
+                if (Math.Abs(velocity.Y) < MAX_VELOCITY) {
+                    velocity.Y += direction.Y * ACCELERATION_FACTOR * dT;
+                    velocity.Y = MathHelper.Clamp(velocity.Y, -MAX_VELOCITY, MAX_VELOCITY);
+                }
             } else if (velocity.Y != 0) {
                 if (!startYDeccelerating) {
                     directionDecc.Y = prevDirection.Y;
                     startYDeccelerating = true;
                 }
-                velocity.Y -= directionDecc.Y * DECCELERATION * dT;
+                velocity.Y -= directionDecc.Y * DECCELERATION_FACTOR * dT;
                 if (prevDirection.Y == 1 && velocity.Y < 0 || prevDirection.Y == -1 && velocity.Y > 0) {
                     velocity.Y = 0;
                 }
@@ -64,24 +65,27 @@ namespace SpaceBar.Entities {
                 prevDirection.X = direction.X;
                 startXDeccelerating = false;
 
-                velocity.X += direction.X * ACCELERATION * dT;
-                velocity.X = MathHelper.Clamp(velocity.X, -MAX_VELOCITY, MAX_VELOCITY);
+                if (Math.Abs(velocity.X) < MAX_VELOCITY) {
+                    velocity.X += direction.X * ACCELERATION_FACTOR * dT;
+                    velocity.X = MathHelper.Clamp(velocity.X, -MAX_VELOCITY, MAX_VELOCITY);
+                }
             } else if (velocity.X != 0) {
                 if (!startXDeccelerating) {
                     directionDecc.X = prevDirection.X;
                     startXDeccelerating = true;
                 }
-                velocity.X -= directionDecc.X * DECCELERATION * dT;
+                velocity.X -= directionDecc.X * DECCELERATION_FACTOR * dT;
                 if (prevDirection.X == 1 && velocity.X < 0 || prevDirection.X == -1 && velocity.X > 0) {
                     velocity.X = 0;
                 }
             }
 
 
+            if (velocity.LengthSquared() > MAX_VELOCITY * MAX_VELOCITY) {
+                velocity.Normalize();
+                velocity *= MAX_VELOCITY;
+            }
 
-
-
-            // direction.Normalize();
 
             Vector2 position = new Vector2(rectangle.X, rectangle.Y);
 
