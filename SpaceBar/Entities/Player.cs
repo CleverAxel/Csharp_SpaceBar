@@ -43,13 +43,14 @@ namespace SpaceBar.Entities {
             bool movingVertically = direction.Y == -1 || direction.Y == 1;
 
             if (movingVertically) {
-                prevDirection.Y = direction.Y;
                 startYDeccelerating = false;
 
-                if (Math.Abs(velocity.Y) < MAX_VELOCITY) {
+                if (prevDirection.Y == direction.Y && Math.Abs(velocity.Y) < MAX_VELOCITY) {
                     velocity.Y += direction.Y * ACCELERATION_FACTOR * dT;
                     velocity.Y = MathHelper.Clamp(velocity.Y, -MAX_VELOCITY, MAX_VELOCITY);
                 }
+                
+                prevDirection.Y = direction.Y;
             } else if (velocity.Y != 0) {
                 if (!startYDeccelerating) {
                     directionDecc.Y = prevDirection.Y;
@@ -62,13 +63,14 @@ namespace SpaceBar.Entities {
             }
 
             if (movingHorizontally) {
-                prevDirection.X = direction.X;
                 startXDeccelerating = false;
 
-                if (Math.Abs(velocity.X) < MAX_VELOCITY) {
+                if (prevDirection.X == direction.X && Math.Abs(velocity.X) < MAX_VELOCITY) {
                     velocity.X += direction.X * ACCELERATION_FACTOR * dT;
                     velocity.X = MathHelper.Clamp(velocity.X, -MAX_VELOCITY, MAX_VELOCITY);
                 }
+
+                prevDirection.X = direction.X;
             } else if (velocity.X != 0) {
                 if (!startXDeccelerating) {
                     directionDecc.X = prevDirection.X;
