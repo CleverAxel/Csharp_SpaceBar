@@ -38,7 +38,7 @@ public class Game : ClengineCore {
     protected override void Draw(GameTime gameTime) {
         RenderGameTime = gameTime;
         GraphicsDevice.SetRenderTarget(_renderTarget2D);
-        GraphicsDevice.Clear(Color.CornflowerBlue);
+        GraphicsDevice.Clear(new Color(23, 32, 56));
 
 
         SpriteBatch.Begin(samplerState: SamplerState.PointClamp, blendState: BlendState.AlphaBlend);
