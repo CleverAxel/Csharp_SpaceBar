@@ -1,5 +1,6 @@
 using System;
 using Clengine;
+using Clengine.Colliders;
 using Clengine.Effects;
 using Clengine.Input.KeyboardInput;
 using Clengine.Texture;
@@ -10,6 +11,12 @@ using Microsoft.Xna.Framework.Graphics;
 namespace SpaceBar.Entities {
     public class Player : Entity {
         public const float SCALE = 3f;
+        private const float COLLIDER_FRACTION_WIDTH = 0.65f;
+        private const float COLLIDER_FRACTION_HEIGHT = 0.7f;
+        private const float COLLIDER_OFFSET_X = 0.175f;
+        private const float COLLIDER_OFFSET_Y = 0.15f;
+
+        private AABB _collider = new AABB();
         private Texture2D _texture;
         private Rectangle _srcRectangle;
         // private Vector2 _scale = new Vector2(SCALE, SCALE);
@@ -41,6 +48,9 @@ namespace SpaceBar.Entities {
             UpdateDestRectDimension(32, 32);
             Scale(new Vector2(3f, 3f));
 
+            _collider.Set(new Rectangle(_destRect.X + (int)(_destRect.Width * COLLIDER_OFFSET_X), _destRect.Y + (int)(_destRect.Height * COLLIDER_OFFSET_Y), (int)(_destRect.Width * COLLIDER_FRACTION_WIDTH), (int)(_destRect.Height * COLLIDER_FRACTION_HEIGHT)));
+
+
         }
 
         private void ShootAnimationFinish() {
@@ -53,6 +63,7 @@ namespace SpaceBar.Entities {
 
         public override void Draw() {
             ClengineCore.SpriteBatch.Draw(_texture, _destRect, _srcRectangle, Color.White, 0.0f, Vector2.Zero, SpriteEffects.None, 1f);
+            _collider.Draw();
             // ClengineCore.SpriteBatch.Draw(_texture, _position, _srcRectangle, Color.White, 0.0f, _origin, _scale, SpriteEffects.None, 1);
         }
 
@@ -71,14 +82,37 @@ namespace SpaceBar.Entities {
 
             if (direction != Vector2.Zero || velocity != Vector2.Zero) {
                 Displace(dT);
-                ManageTiltState();
             }
+            ManageTiltState();
 
             ManageIdleState(dT);
             ManageShootingEvent();
+            _collider.Set(new Rectangle(_destRect.X + (int)(_destRect.Width * COLLIDER_OFFSET_X), _destRect.Y + (int)(_destRect.Height * COLLIDER_OFFSET_Y), (int)(_destRect.Width * COLLIDER_FRACTION_WIDTH), (int)(_destRect.Height * COLLIDER_FRACTION_HEIGHT)));
 
 
+            ClampToWindowsBound();
+        }
 
+        private void ClampToWindowsBound() {
+            GameBound.PrintStatus(GameBound.GetStatus(_collider));
+            // int width = ClengineCore.VirtualWidth;
+            // int height = ClengineCore.VirtualHeight;
+            // int prevY = _destRect.Y;
+            // int prevX = _destRect.X;
+            // _destRect.Y = Math.Clamp(_destRect.Y, 0, height - _destRect.Height);
+            // _destRect.X = Math.Clamp(_destRect.X, 0, width - _destRect.Width);
+
+            // if (prevY != _destRect.Y) {
+            //     velocity.Y = 0;
+            //     _collider.SetY(_destRect.Y);
+            //     _position.Y = _destRect.Y;
+            // }
+
+            // if (prevX != _destRect.X) {
+            //     velocity.X = 0;
+            //     _collider.SetX(_destRect.X + + (int)(_destRect.Width * COLLIDER_OFFSET));
+            //     _position.X = _destRect.X;
+            // }
         }
 
         private void ManageShootingEvent() {
@@ -116,6 +150,7 @@ namespace SpaceBar.Entities {
                 Scale(new Vector2(SCALE, SCALE));
                 _pulse.ResetTimer();
             }
+
         }
 
         private void Displace(float dT) {
@@ -171,6 +206,7 @@ namespace SpaceBar.Entities {
             _position += velocity * dT;
             _destRect.X = (int)Math.Round(_position.X);
             _destRect.Y = (int)Math.Round(_position.Y);
+
         }
 
         private Vector2 GetDirection() {

@@ -9,31 +9,28 @@ namespace Clengine.Colliders {
     public class AABB {
 
         private Rectangle _rectangle;
-        public Rectangle Rectangle => _rectangle;
 
-        public AABB SetX(int x) {
+        public int Left => _rectangle.X;
+        public int Top => _rectangle.Y;
+        public int Width => _rectangle.Width;
+        public int Height => _rectangle.Height;
+        public int Right => _rectangle.Right;
+        public int Bottom => _rectangle.Bottom;
+
+        public void Set(Rectangle rectangle) {
+            _rectangle = rectangle;
+        }
+
+        public void SetX(int x) {
             _rectangle.X = x;
-
-            return this;
         }
-        public AABB SetY(int y) {
+
+        public void SetY(int y) {
             _rectangle.Y = y;
-
-            return this;
-        }
-        public AABB SetWidth(int width) {
-            _rectangle.Width = width;
-
-            return this;
-        }
-
-        public AABB SetHeight(int height) {
-            _rectangle.Height = height;
-            return this;
         }
 
         public void Draw() {
-            ClengineCore.SpriteBatch.Draw(TextureColor.Red, _rectangle, Color.White);
+            ClengineCore.SpriteBatch.Draw(TextureColor.Red, _rectangle, Color.White * 0.25f);
         }
     }
 }

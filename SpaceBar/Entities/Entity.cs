@@ -5,7 +5,7 @@ namespace SpaceBar.Entities {
     public abstract class Entity {
         protected Vector2 _position = Vector2.Zero;
         protected Rectangle _destRect;
-        protected Rectangle _baseDestRect;
+        private Rectangle _baseDestRect;
         protected Vector2 _originScale = new Vector2(0.5f, 0.5f);
         protected Vector2 _scale = new Vector2(1f, 1f);
 

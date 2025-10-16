@@ -34,8 +34,8 @@ namespace Clengine {
 
 
         public float OperatingSystemScale { get; protected set; }
-        public int VirtualWidth { get; protected set; }
-        public int VirtualHeight { get; protected set; }
+        public static int VirtualWidth { get; protected set; }
+        public static int VirtualHeight { get; protected set; }
         public bool IsResizingWindow { get; protected set; }
 
 
@@ -46,7 +46,7 @@ namespace Clengine {
             if (Instance != null) {
                 throw new InvalidOperationException("Only a single Core instance can be created");
             }
-
+            
             Instance = this;
             Graphics = new GraphicsDeviceManager(this);
             IntPtr sdlHandle = Window.Handle;
