@@ -12,8 +12,7 @@ namespace SpaceBar.Entities {
         public const float SCALE = 3f;
         private Texture2D _texture;
         private Rectangle _srcRectangle;
-        private Vector2 _position = Vector2.Zero;
-        private Vector2 _scale = new Vector2(SCALE, SCALE);
+        // private Vector2 _scale = new Vector2(SCALE, SCALE);
         private Pulse _pulse = new Pulse(SCALE - 0.1f, SCALE, SCALE + 0.3f, 2.0f);
         private Vector2 _origin = Vector2.Zero;
 
@@ -37,6 +36,11 @@ namespace SpaceBar.Entities {
         public Player() {
             _shootCoolDown.OnFinish += ShootCoolDownFinish;
             _shootAnimation.OnFinish += ShootAnimationFinish;
+
+            _position = new Vector2(0, 0);
+            UpdateDestRectDimension(32, 32);
+            Scale(new Vector2(3f, 3f));
+
         }
 
         private void ShootAnimationFinish() {
@@ -48,8 +52,8 @@ namespace SpaceBar.Entities {
         }
 
         public override void Draw() {
-            ClengineCore.SpriteBatch.Draw(_texture, _position, _srcRectangle, Color.White, 0.0f, _origin, _scale, SpriteEffects.None, 1);
-            // ClengineCore.SpriteBatch.Draw(color, rectangle, Color.White);
+            ClengineCore.SpriteBatch.Draw(_texture, _destRect, _srcRectangle, Color.White, 0.0f, Vector2.Zero, SpriteEffects.None, 1f);
+            // ClengineCore.SpriteBatch.Draw(_texture, _position, _srcRectangle, Color.White, 0.0f, _origin, _scale, SpriteEffects.None, 1);
         }
 
         public void LoadContent() {
@@ -72,6 +76,8 @@ namespace SpaceBar.Entities {
 
             ManageIdleState(dT);
             ManageShootingEvent();
+
+
 
         }
 
@@ -105,10 +111,9 @@ namespace SpaceBar.Entities {
 
         private void ManageIdleState(float dT) {
             if (direction == Vector2.Zero) {
-                _scale = _pulse.Update(dT);
+                Scale(_pulse.Update(dT));
             } else {
-                _scale.X = SCALE;
-                _scale.Y = SCALE;
+                Scale(new Vector2(SCALE, SCALE));
                 _pulse.ResetTimer();
             }
         }
@@ -163,15 +168,9 @@ namespace SpaceBar.Entities {
                 velocity *= MAX_VELOCITY;
             }
 
-
-            // Vector2 position = _position;
-
-            // position += velocity * dT;
-
             _position += velocity * dT;
-
-            // rectangle.X = (int)Math.Round(position.X);
-            // rectangle.Y = (int)Math.Round(position.Y);
+            _destRect.X = (int)Math.Round(_position.X);
+            _destRect.Y = (int)Math.Round(_position.Y);
         }
 
         private Vector2 GetDirection() {

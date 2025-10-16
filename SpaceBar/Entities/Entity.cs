@@ -1,11 +1,13 @@
+using System;
 using Microsoft.Xna.Framework;
 
 namespace SpaceBar.Entities {
     public abstract class Entity {
+        protected Vector2 _position = Vector2.Zero;
         protected Rectangle _destRect;
         protected Rectangle _baseDestRect;
         protected Vector2 _originScale = new Vector2(0.5f, 0.5f);
-        protected Vector2 _scale;
+        protected Vector2 _scale = new Vector2(1f, 1f);
 
 
         public void Scale(Vector2 scale) {
@@ -14,8 +16,8 @@ namespace SpaceBar.Entities {
             }
 
             Vector2 anchor = new Vector2(
-                _baseDestRect.X + _baseDestRect.Width * _originScale.X,
-                _baseDestRect.Y + _baseDestRect.Height * _originScale.Y
+                _position.X + _destRect.Width * _originScale.X,
+                _position.Y + _destRect.Height * _originScale.Y
             );
 
             _scale = scale;
@@ -24,8 +26,17 @@ namespace SpaceBar.Entities {
 
             _destRect.Width = newWidth;
             _destRect.Height = newHeight;
-            _destRect.X = (int)(anchor.X - newWidth * _originScale.X);
-            _destRect.Y = (int)(anchor.Y - newHeight * -_originScale.Y);
+
+            _position.X = anchor.X - newWidth * _originScale.X;
+            _position.Y = anchor.Y - newHeight * _originScale.Y;
+
+            _destRect.X = (int)Math.Round(_position.X);
+            _destRect.Y = (int)Math.Round(_position.Y);
+        }
+
+        protected void UpdateDestRectDimension(int width, int height) {
+            _destRect = new Rectangle((int)Math.Round(_position.X), (int)Math.Round(_position.Y), width, height);
+            _baseDestRect = _destRect;
         }
 
         public abstract void Draw();
