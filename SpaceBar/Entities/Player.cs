@@ -2,6 +2,7 @@ using System;
 using Clengine;
 using Clengine.Effects;
 using Clengine.Input.KeyboardInput;
+using Clengine.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -28,6 +29,19 @@ namespace SpaceBar.Entities {
 
         Texture2D color;
 
+        private Timer _timerShoot = new Timer(delayMs: 500);
+        private bool _canShoot = true;
+        private short _shootingFrameCount = 4;
+        private double _startTimeShooting = 0;
+
+        public Player() {
+            // _timerShoot.OnTimeOut += Test;
+        }
+
+        private void Test() {
+            System.Console.WriteLine("bang");
+        }
+
         public override void Draw() {
             ClengineCore.SpriteBatch.Draw(_texture, _position, _srcRectangle, Color.White, 0.0f, _origin, _scale, SpriteEffects.None, 1);
             // ClengineCore.SpriteBatch.Draw(color, rectangle, Color.White);
@@ -43,8 +57,11 @@ namespace SpaceBar.Entities {
         }
 
         public override void Update() {
+            const int frameDuration = 28;
+            // System.Console.WriteLine(ClengineCore.LogicGameTime.TotalGameTime.TotalMilliseconds  );
             float dT = ClengineCore.LogicDeltaTime;
             direction = GetDirection();
+            bool isShooting = ClengineCore.Input.Keyboard.IsKeyDownSpace();
 
             if (direction != Vector2.Zero || velocity != Vector2.Zero) {
                 Displace(dT);
@@ -57,9 +74,32 @@ namespace SpaceBar.Entities {
                     _srcRectangle.X = 64;
                 }
             }
-
-
             ManageIdleState(dT);
+
+            if(isShooting && _canShoot) {
+                _startTimeShooting = ClengineCore.LogicGameTime.TotalGameTime.TotalMilliseconds - frameDuration;
+                _canShoot = false;
+            }
+
+            // if (isShooting && _timerShoot.HasFinised) {
+            //     _srcRectangle.Y = 0;
+            //     _startTimeShooting = _timerShoot.Start() - frameDuration;
+            // } else {
+            //     _timerShoot.Update();
+            // }
+            
+            if(_startTimeShooting != 0) {
+                double elapsed = ClengineCore.LogicGameTime.TotalGameTime.TotalMilliseconds - _startTimeShooting;
+                int frame = (int)(elapsed / frameDuration);
+
+                if(frame > _shootingFrameCount) {
+                    _startTimeShooting = 0;
+                    frame = 0;
+                    _canShoot = true;
+                }
+
+                _srcRectangle.Y = 32 * frame;
+            }
 
 
         }
