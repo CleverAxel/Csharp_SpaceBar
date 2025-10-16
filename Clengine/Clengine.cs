@@ -3,6 +3,7 @@ using Clengine.External.SDL;
 using Clengine.Input;
 using Clengine.Input.KeyboardInput;
 using Clengine.Input.MouseInput;
+using Clengine.Texture;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -103,6 +104,9 @@ namespace Clengine {
 
             GraphicsDevice = base.GraphicsDevice;
             SpriteBatch = new SpriteBatch(GraphicsDevice);
+
+            TextureColor.LoadContent();
+
             DisableVSYNC();
             CapFrameRateAt(60);
             InitializeRenderTarget();

@@ -2,6 +2,7 @@ using System;
 using Clengine;
 using Clengine.Effects;
 using Clengine.Input.KeyboardInput;
+using Clengine.Texture;
 using Clengine.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -29,17 +30,21 @@ namespace SpaceBar.Entities {
 
         Texture2D color;
 
-        private Timer _timerShoot = new Timer(delayMs: 500);
+        private Timer _shootCoolDown = new Timer(delayMs: 100);
+        private Animation _shootAnimation = new Animation(frameCount: 4, frameDimension: 32, frameDurationMs: 33);
         private bool _canShoot = true;
-        private short _shootingFrameCount = 4;
-        private double _startTimeShooting = 0;
 
         public Player() {
-            // _timerShoot.OnTimeOut += Test;
+            _shootCoolDown.OnFinish += ShootCoolDownFinish;
+            _shootAnimation.OnFinish += ShootAnimationFinish;
         }
 
-        private void Test() {
-            System.Console.WriteLine("bang");
+        private void ShootAnimationFinish() {
+            this._shootCoolDown.Start(ClengineCore.LogicGameTime.TotalGameTime.TotalMilliseconds);
+        }
+
+        private void ShootCoolDownFinish() {
+            this._canShoot = true;
         }
 
         public override void Draw() {
@@ -57,51 +62,45 @@ namespace SpaceBar.Entities {
         }
 
         public override void Update() {
-            const int frameDuration = 28;
-            // System.Console.WriteLine(ClengineCore.LogicGameTime.TotalGameTime.TotalMilliseconds  );
             float dT = ClengineCore.LogicDeltaTime;
             direction = GetDirection();
-            bool isShooting = ClengineCore.Input.Keyboard.IsKeyDownSpace();
 
             if (direction != Vector2.Zero || velocity != Vector2.Zero) {
                 Displace(dT);
-
-                if (direction.X == 0) {
-                    _srcRectangle.X = 32;
-                } else if (direction.X == -1) {
-                    _srcRectangle.X = 0;
-                } else {
-                    _srcRectangle.X = 64;
-                }
+                ManageTiltState();
             }
-            ManageIdleState(dT);
 
-            if(isShooting && _canShoot) {
-                _startTimeShooting = ClengineCore.LogicGameTime.TotalGameTime.TotalMilliseconds - frameDuration;
+            ManageIdleState(dT);
+            ManageShootingEvent();
+
+        }
+
+        private void ManageShootingEvent() {
+            double totalMilliSeconds = ClengineCore.LogicGameTime.TotalGameTime.TotalMilliseconds;
+            bool isShooting = ClengineCore.Input.Keyboard.IsKeyDownSpace();
+            if (isShooting && _canShoot) {
+                //skip one frame
+                _shootAnimation.Play(totalMilliSeconds - _shootAnimation.FrameDurationMs);
                 _canShoot = false;
             }
 
-            // if (isShooting && _timerShoot.HasFinised) {
-            //     _srcRectangle.Y = 0;
-            //     _startTimeShooting = _timerShoot.Start() - frameDuration;
-            // } else {
-            //     _timerShoot.Update();
-            // }
-            
-            if(_startTimeShooting != 0) {
-                double elapsed = ClengineCore.LogicGameTime.TotalGameTime.TotalMilliseconds - _startTimeShooting;
-                int frame = (int)(elapsed / frameDuration);
-
-                if(frame > _shootingFrameCount) {
-                    _startTimeShooting = 0;
-                    frame = 0;
-                    _canShoot = true;
-                }
-
-                _srcRectangle.Y = 32 * frame;
+            if (_shootAnimation.IsPlaying) {
+                _srcRectangle.Y = _shootAnimation.FrameDimension * _shootAnimation.Play(totalMilliSeconds);
             }
 
+            if (_shootCoolDown.IsActive) {
+                _shootCoolDown.Update(totalMilliSeconds);
+            }
+        }
 
+        private void ManageTiltState() {
+            if (direction.X == 0) {
+                _srcRectangle.X = 32;
+            } else if (direction.X == -1) {
+                _srcRectangle.X = 0;
+            } else {
+                _srcRectangle.X = 64;
+            }
         }
 
         private void ManageIdleState(float dT) {

@@ -7,30 +7,30 @@ namespace Clengine.Utils {
     public class Timer {
         private double _start;
         public int DelayMs { get; set; }
-        public bool HasFinised { get; set; } = true;
+        public bool HasFinished { get; set; } = true;
         public bool IsActive { get; set; } = false;
-        public event Action OnTimeOut;
+        public event Action OnFinish;
 
         public Timer(int delayMs)
         {
             DelayMs = delayMs;
         }
 
-        public double Start() {
-            HasFinised = false;
-            _start = ClengineCore.LogicGameTime.TotalGameTime.TotalMilliseconds;
-            return _start;
+        public void Start(double time) {
+            HasFinished = false;
+            IsActive = true;
+            _start = time;
         }
 
-        public void Update() {
-            if (HasFinised)
+        public void Update(double time) {
+            if (HasFinished)
                 return;
 
-            double elapsed = ClengineCore.LogicGameTime.TotalGameTime.TotalMilliseconds - _start;
+            double elapsed = time - _start;
             if (elapsed > DelayMs) {
-                HasFinised = true;
-
-                OnTimeOut?.Invoke();
+                HasFinished = true;
+                IsActive = false;
+                OnFinish?.Invoke();
             }
         }
     }

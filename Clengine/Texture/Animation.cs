@@ -15,6 +15,8 @@ namespace Clengine.Texture
         public bool HasFinished { get; private set; } = true;
         private double _start;
 
+        public event Action OnFinish;
+
         public Animation(int frameCount, int frameDimension, int frameDurationMs) {
             FrameCount = frameCount;
             FrameDimension = frameDimension;
@@ -35,6 +37,8 @@ namespace Clengine.Texture
                 frame = 0;
                 HasFinished = true;
                 IsPlaying = false;
+
+                OnFinish?.Invoke();
             }
 
             return frame;
