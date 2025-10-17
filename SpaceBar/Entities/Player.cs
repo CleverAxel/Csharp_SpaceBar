@@ -18,6 +18,7 @@ namespace SpaceBar.Entities {
         private const float COLLIDER_OFFSET_X = 0.175f;
         private const float COLLIDER_OFFSET_Y = 0.15f;
 
+        private Random _random = new Random();
         private AABB _collider = new AABB();
         private Texture2D _texture;
         private Rectangle _srcRectangle;
@@ -41,7 +42,7 @@ namespace SpaceBar.Entities {
         private bool _canShoot = true;
 
 
-        private Pool<PlayerShipParticle> _shipParticlesPool = new Pool<PlayerShipParticle>(10);
+        private PoolEntities<PlayerShipParticle> _shipParticlesPool = new PoolEntities<PlayerShipParticle>(10);
 
         public Player() {
             _shootCoolDown.OnFinish += ShootCoolDownFinish;
@@ -70,6 +71,7 @@ namespace SpaceBar.Entities {
         }
 
         public override void Draw() {
+            _shipParticlesPool.Draw();
             ClengineCore.SpriteBatch.Draw(_texture, _destRect, _srcRectangle, Color.White, 0.0f, Vector2.Zero, SpriteEffects.None, 1f);
             _collider.Draw();
             // ClengineCore.SpriteBatch.Draw(_texture, _position, _srcRectangle, Color.White, 0.0f, _origin, _scale, SpriteEffects.None, 1);
@@ -101,6 +103,11 @@ namespace SpaceBar.Entities {
             .UpdateDimension(_destRect.Width, _destRect.Height);
 
             ClampToWindowsBound();
+
+
+
+
+            _shipParticlesPool.Update();
         }
 
         private void ClampToWindowsBound() {
@@ -135,6 +142,21 @@ namespace SpaceBar.Entities {
                 //skip one frame
                 _shootAnimation.Play(totalMilliSeconds - _shootAnimation.FrameDurationMs);
                 _canShoot = false;
+
+
+                ref PlayerShipParticle particle = ref _shipParticlesPool.Create(out bool success);
+                if (success) {
+                    Vector2 randVelocity = new Vector2(_random.Next(0, 359), _random.Next(0, 359));
+                    randVelocity.X = (float)Math.Cos(MathHelper.ToRadians(randVelocity.X));
+                    randVelocity.Y = (float)Math.Sin(MathHelper.ToRadians(randVelocity.Y));
+                    randVelocity.Normalize();
+                    randVelocity *= 500;
+                    // particle.Reset();
+                    particle.Velocity = randVelocity;
+                    particle.Reset();
+                    particle.Position = new Vector2(300, 50);
+
+                }
             }
 
             if (_shootAnimation.IsPlaying) {

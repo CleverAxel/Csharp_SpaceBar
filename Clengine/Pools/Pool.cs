@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Clengine.Pools {
     public class Pool<T> where T : struct, IPoolableItem {
         private T _dummy = new T();
-        private List<T> _pool;
+        protected List<T> _pool;
         private int _indexFirstAvailable = -1;
 
 
@@ -41,7 +41,7 @@ namespace Clengine.Pools {
             return ref firstAvailable;
         }
 
-        public void ReturnToPool(int index) {
+        protected void ReturnToPool(int index) {
             ref T item = ref CollectionsMarshal.AsSpan(_pool)[index];
             item.IsInUse = false;
             item.NextIndexInPool = _indexFirstAvailable;
