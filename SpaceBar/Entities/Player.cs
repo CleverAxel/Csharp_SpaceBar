@@ -3,10 +3,12 @@ using Clengine;
 using Clengine.Colliders;
 using Clengine.Effects;
 using Clengine.Input.KeyboardInput;
+using Clengine.Pools;
 using Clengine.Texture;
 using Clengine.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SpaceBar.Particles;
 
 namespace SpaceBar.Entities {
     public class Player : Entity {
@@ -38,6 +40,9 @@ namespace SpaceBar.Entities {
         private Animation _shootAnimation = new Animation(frameCount: 4, frameDimension: 32, frameDurationMs: 33);
         private bool _canShoot = true;
 
+
+        private Pool<PlayerShipParticle> _shipParticlesPool = new Pool<PlayerShipParticle>(10);
+
         public Player() {
             _shootCoolDown.OnFinish += ShootCoolDownFinish;
             _shootAnimation.OnFinish += ShootAnimationFinish;
@@ -53,7 +58,6 @@ namespace SpaceBar.Entities {
             _collider.HeightFractionHost = COLLIDER_FRACTION_HEIGHT;
 
             _collider.Set(new Rectangle(_destRect.X + (int)(_destRect.Width * COLLIDER_OFFSET_X), _destRect.Y + (int)(_destRect.Height * COLLIDER_OFFSET_Y), (int)(_destRect.Width * COLLIDER_FRACTION_WIDTH), (int)(_destRect.Height * COLLIDER_FRACTION_HEIGHT)));
-
 
         }
 
@@ -100,7 +104,7 @@ namespace SpaceBar.Entities {
         }
 
         private void ClampToWindowsBound() {
-            
+
             int gameWidth = ClengineCore.VirtualWidth;
             int gameHeight = ClengineCore.VirtualHeight;
 
@@ -118,7 +122,7 @@ namespace SpaceBar.Entities {
                 if (newPos.X != oldPos.X) {
                     velocity.X = 0;
                 }
-                if(newPos.Y != oldPos.Y) {
+                if (newPos.Y != oldPos.Y) {
                     velocity.Y = 0;
                 }
             }
