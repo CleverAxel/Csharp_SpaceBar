@@ -13,7 +13,6 @@ namespace SpaceBar.Particles {
 
 
         public PlayerShipParticle() {
-            System.Console.WriteLine("created");
         }
 
         private Vector2 _position;
@@ -42,7 +41,11 @@ namespace SpaceBar.Particles {
         }
 
         public bool MustBeReturnedToPool() {
-            return _opacity <= 0f;
+            if (_opacity <= 0f) {
+                Reset();
+                return true;
+            }
+            return false;
         }
 
         public void Update() {
@@ -59,7 +62,6 @@ namespace SpaceBar.Particles {
             _destRect.X = (int)Math.Round(_position.X);
             _destRect.Y = (int)Math.Round(_position.Y);
 
-            System.Console.WriteLine(Position);
 
         }
     }

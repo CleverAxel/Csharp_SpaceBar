@@ -10,6 +10,7 @@ namespace Clengine.Pools {
         private T _dummy = new T();
         protected List<T> _pool;
         private int _indexFirstAvailable = -1;
+        protected int _itemInUseCount = 0;
 
 
         public Pool(int capacity) {
@@ -34,6 +35,7 @@ namespace Clengine.Pools {
                 return ref _dummy;
             }
 
+            _itemInUseCount++;
             success = true;
             ref T firstAvailable = ref CollectionsMarshal.AsSpan(_pool)[_indexFirstAvailable];
             _indexFirstAvailable = firstAvailable.NextIndexInPool;
@@ -42,6 +44,7 @@ namespace Clengine.Pools {
         }
 
         protected void ReturnToPool(int index) {
+            _itemInUseCount--;
             ref T item = ref CollectionsMarshal.AsSpan(_pool)[index];
             item.IsInUse = false;
             item.NextIndexInPool = _indexFirstAvailable;

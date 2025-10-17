@@ -151,11 +151,8 @@ namespace SpaceBar.Entities {
                     randVelocity.Y = (float)Math.Sin(MathHelper.ToRadians(randVelocity.Y));
                     randVelocity.Normalize();
                     randVelocity *= 500;
-                    // particle.Reset();
                     particle.Velocity = randVelocity;
-                    particle.Reset();
-                    particle.Position = new Vector2(300, 50);
-
+                    particle.Position = _position;
                 }
             }
 
