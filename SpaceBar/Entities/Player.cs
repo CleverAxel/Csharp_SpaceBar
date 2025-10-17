@@ -21,8 +21,6 @@ namespace SpaceBar.Entities {
         private Rectangle _srcRectangle;
         // private Vector2 _scale = new Vector2(SCALE, SCALE);
         private Pulse _pulse = new Pulse(SCALE - 0.1f, SCALE, SCALE + 0.3f, 2.0f);
-        private Vector2 _origin = Vector2.Zero;
-
         private bool startYDeccelerating = false;
         private bool startXDeccelerating = false;
         private Vector2 velocity = Vector2.Zero;
@@ -48,6 +46,12 @@ namespace SpaceBar.Entities {
             UpdateDestRectDimension(32, 32);
             Scale(new Vector2(3f, 3f));
 
+            _collider
+            .SetOffsetHost(new Vector2(COLLIDER_OFFSET_X, COLLIDER_OFFSET_Y))
+            .SetDestRectHost(_destRect);
+            _collider.WidthFractionHost = COLLIDER_FRACTION_WIDTH;
+            _collider.HeightFractionHost = COLLIDER_FRACTION_HEIGHT;
+
             _collider.Set(new Rectangle(_destRect.X + (int)(_destRect.Width * COLLIDER_OFFSET_X), _destRect.Y + (int)(_destRect.Height * COLLIDER_OFFSET_Y), (int)(_destRect.Width * COLLIDER_FRACTION_WIDTH), (int)(_destRect.Height * COLLIDER_FRACTION_HEIGHT)));
 
 
@@ -70,7 +74,7 @@ namespace SpaceBar.Entities {
         public void LoadContent() {
             _texture = ClengineCore.Content.Load<Texture2D>("images/player");
             _srcRectangle = new Rectangle(32, 0, 32, 32);
-            _origin = new Vector2(_srcRectangle.Width / 2f, _srcRectangle.Height / 2f);
+            // _origin = new Vector2(_srcRectangle.Width / 2f, _srcRectangle.Height / 2f);
 
             color = new Texture2D(ClengineCore.GraphicsDevice, 1, 1);
             color.SetData([Color.White]);
@@ -87,32 +91,37 @@ namespace SpaceBar.Entities {
 
             ManageIdleState(dT);
             ManageShootingEvent();
-            _collider.Set(new Rectangle(_destRect.X + (int)(_destRect.Width * COLLIDER_OFFSET_X), _destRect.Y + (int)(_destRect.Height * COLLIDER_OFFSET_Y), (int)(_destRect.Width * COLLIDER_FRACTION_WIDTH), (int)(_destRect.Height * COLLIDER_FRACTION_HEIGHT)));
 
+            _collider
+            .UpdatePosition(ref _position)
+            .UpdateDimension(_destRect.Width, _destRect.Height);
 
             ClampToWindowsBound();
         }
 
         private void ClampToWindowsBound() {
-            GameBound.PrintStatus(GameBound.GetStatus(_collider));
-            // int width = ClengineCore.VirtualWidth;
-            // int height = ClengineCore.VirtualHeight;
-            // int prevY = _destRect.Y;
-            // int prevX = _destRect.X;
-            // _destRect.Y = Math.Clamp(_destRect.Y, 0, height - _destRect.Height);
-            // _destRect.X = Math.Clamp(_destRect.X, 0, width - _destRect.Width);
+            
+            int gameWidth = ClengineCore.VirtualWidth;
+            int gameHeight = ClengineCore.VirtualHeight;
 
-            // if (prevY != _destRect.Y) {
-            //     velocity.Y = 0;
-            //     _collider.SetY(_destRect.Y);
-            //     _position.Y = _destRect.Y;
-            // }
+            Vector2 oldPos = new Vector2(_collider.Left, _collider.Top);
+            Vector2 newPos = Vector2.Zero;
+            newPos.X = Math.Clamp(oldPos.X, 0, gameWidth - _collider.Width);
+            newPos.Y = Math.Clamp(oldPos.Y, 0, gameHeight - _collider.Height);
 
-            // if (prevX != _destRect.X) {
-            //     velocity.X = 0;
-            //     _collider.SetX(_destRect.X + + (int)(_destRect.Width * COLLIDER_OFFSET));
-            //     _position.X = _destRect.X;
-            // }
+            bool mustCalculateNewPos = oldPos.X != newPos.X || oldPos.Y != newPos.Y;
+
+            if (mustCalculateNewPos) {
+                _collider.SetPositon(ref newPos);
+                _position = _collider.CalculateNewPositionForHost();
+
+                if (newPos.X != oldPos.X) {
+                    velocity.X = 0;
+                }
+                if(newPos.Y != oldPos.Y) {
+                    velocity.Y = 0;
+                }
+            }
         }
 
         private void ManageShootingEvent() {
@@ -206,7 +215,6 @@ namespace SpaceBar.Entities {
             _position += velocity * dT;
             _destRect.X = (int)Math.Round(_position.X);
             _destRect.Y = (int)Math.Round(_position.Y);
-
         }
 
         private Vector2 GetDirection() {

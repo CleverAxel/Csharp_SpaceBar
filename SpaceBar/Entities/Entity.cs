@@ -7,7 +7,7 @@ namespace SpaceBar.Entities {
         protected Rectangle _destRect;
         private Rectangle _baseDestRect;
         protected Vector2 _originScale = new Vector2(0.5f, 0.5f);
-        protected Vector2 _scale = new Vector2(1f, 1f);
+        private Vector2 _scale = new Vector2(1f, 1f);
 
 
         public void Scale(Vector2 scale) {
