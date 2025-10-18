@@ -9,13 +9,14 @@ namespace Clengine.Colliders {
     public class AABB {
 
         private Rectangle _rectangle;
+        private Vector2 _position = Vector2.Zero;
         public float WidthFractionHost { get; set; }
         public float HeightFractionHost { get; set; }
         private Vector2 _offsetHost;
         private Rectangle _destRectHost;
 
-        public int Left => _rectangle.X;
-        public int Top => _rectangle.Y;
+        public float Left => _position.X;
+        public float Top => _position.Y;
         public int Width => _rectangle.Width;
         public int Height => _rectangle.Height;
         public int Right => _rectangle.Right;
@@ -25,15 +26,22 @@ namespace Clengine.Colliders {
             _rectangle = rectangle;
         }
 
+        private void UpdateRectPosition() {
+            _rectangle.X = (int)Math.Round(_position.X);
+            _rectangle.Y = (int)Math.Round(_position.Y);
+        }
+
         public AABB SetPositon(ref readonly Vector2 position) {
-            _rectangle.X = (int)position.X;
-            _rectangle.Y = (int)position.Y;
+            _position.X = position.X;
+            _position.Y = position.Y;
+            UpdateRectPosition();
             return this;
         }
 
         public AABB UpdatePosition(ref readonly Vector2 position) {
-            _rectangle.X = (int)(position.X + _destRectHost.Width * _offsetHost.X);
-            _rectangle.Y = (int)(position.Y + _destRectHost.Height * _offsetHost.Y);
+            _position.X = position.X + _destRectHost.Width * _offsetHost.X;
+            _position.Y = position.Y + _destRectHost.Height * _offsetHost.Y;
+            UpdateRectPosition();
             return this;
         }
 
@@ -54,22 +62,22 @@ namespace Clengine.Colliders {
             _offsetHost = offset;
             return this;
         }
-        
+
         public Vector2 CalculateNewPositionForHost() {
-            Vector2 position = new Vector2(_rectangle.X, _rectangle.Y);
+            Vector2 position = _position;
             position.X -= _destRectHost.Width * _offsetHost.X;
             position.Y -= _destRectHost.Height * _offsetHost.Y;
 
             return position;
         }
 
-        public AABB SetX(int x) {
-            _rectangle.X = x;
+        public AABB SetX(float x) {
+            _position.X = x;
             return this;
         }
 
-        public AABB SetY(int y) {
-            _rectangle.Y = y;
+        public AABB SetY(float y) {
+            _position.Y = y;
             return this;
         }
 

@@ -3,13 +3,13 @@ using Clengine.Texture;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using SpaceBar.Entities;
+using SpaceBar.Entities.Player;
 
 namespace SpaceBar;
 
 public class Game : ClengineCore {
 
-    private Player _player = new Player();
+    private PlayerTopDown _player = new PlayerTopDown();
 
     public Game() : base("Space Bar", 560, 720, false) {
     }

@@ -7,10 +7,13 @@ using System.Threading.Tasks;
 
 namespace Clengine.Pools {
     public class Pool<T> where T : struct, IPoolableItem {
+        public delegate void ForEachItem(ref T item);
         private T _dummy = new T();
         protected List<T> _pool;
         private int _indexFirstAvailable = -1;
         protected int _itemInUseCount = 0;
+
+        public bool IsFull => _indexFirstAvailable == -1;
 
 
         public Pool(int capacity) {
@@ -49,6 +52,13 @@ namespace Clengine.Pools {
             item.IsInUse = false;
             item.NextIndexInPool = _indexFirstAvailable;
             _indexFirstAvailable = index;
+        }
+
+        public void InitEachItems(ForEachItem forEachItem) {
+            for(int i = 0; i < _pool.Count; i++) {
+                ref T item = ref CollectionsMarshal.AsSpan(_pool)[i];
+                forEachItem(ref item);
+            }
         }
     }
 }

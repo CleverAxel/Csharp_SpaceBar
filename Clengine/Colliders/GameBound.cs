@@ -26,8 +26,8 @@ namespace Clengine.Colliders {
             int height = ClengineCore.VirtualHeight;
 
             int right = collider.Right;
-            int left = collider.Left;
-            int top = collider.Top;
+            float left = collider.Left;
+            float top = collider.Top;
             int bottom = collider.Bottom;
 
             if (right < 0) {

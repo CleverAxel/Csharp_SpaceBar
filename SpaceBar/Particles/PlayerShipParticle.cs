@@ -33,7 +33,6 @@ namespace SpaceBar.Particles {
         public void Reset() {
             _tOpacity = 0f;
             _opacity = 1f;
-
         }
 
         public void Draw() {
@@ -49,7 +48,7 @@ namespace SpaceBar.Particles {
         }
 
         public void Update() {
-            const float decaySpeed = 2.0f;
+            const float decaySpeed = 3.0f;
             float dT = ClengineCore.LogicDeltaTime;
 
 

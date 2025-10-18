@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Specialized;
 using Clengine;
 using Clengine.Colliders;
 using Clengine.Effects;
@@ -10,17 +11,17 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SpaceBar.Particles;
 
-namespace SpaceBar.Entities {
-    public class Player : Entity {
+namespace SpaceBar.Entities.Player {
+    public class PlayerTopDown : Entity {
         public const float SCALE = 3f;
         private const float COLLIDER_FRACTION_WIDTH = 0.65f;
         private const float COLLIDER_FRACTION_HEIGHT = 0.7f;
         private const float COLLIDER_OFFSET_X = 0.175f;
         private const float COLLIDER_OFFSET_Y = 0.15f;
-
         private Random _random = new Random();
         private AABB _collider = new AABB();
         private Texture2D _texture;
+        private Texture2D _laserTexture;
         private Rectangle _srcRectangle;
         // private Vector2 _scale = new Vector2(SCALE, SCALE);
         private Pulse _pulse = new Pulse(SCALE - 0.1f, SCALE, SCALE + 0.3f, 2.0f);
@@ -41,15 +42,19 @@ namespace SpaceBar.Entities {
         private Animation _shootAnimation = new Animation(frameCount: 4, frameDimension: 32, frameDurationMs: 33);
         private bool _canShoot = true;
 
+        private Timer _particleSpawnCoolDown = new Timer(500);
 
-        private PoolEntities<PlayerShipParticle> _shipParticlesPool = new PoolEntities<PlayerShipParticle>(10);
+        private PoolEntities<PlayerShipParticle> _shipParticlesPool = new PoolEntities<PlayerShipParticle>(40);
+        private PoolEntities<PlayerLaser> _lasersPool = new PoolEntities<PlayerLaser>(2);
 
-        public Player() {
+        public PlayerTopDown() {
+            const int withPlayerTexture = 32;
             _shootCoolDown.OnFinish += ShootCoolDownFinish;
             _shootAnimation.OnFinish += ShootAnimationFinish;
+            _particleSpawnCoolDown.OnFinish += SpawnShipParticleOnFinish;
 
             _position = new Vector2(0, 0);
-            UpdateDestRectDimension(32, 32);
+            UpdateDestRectDimension(withPlayerTexture, withPlayerTexture);
             Scale(new Vector2(3f, 3f));
 
             _collider
@@ -60,6 +65,33 @@ namespace SpaceBar.Entities {
 
             _collider.Set(new Rectangle(_destRect.X + (int)(_destRect.Width * COLLIDER_OFFSET_X), _destRect.Y + (int)(_destRect.Height * COLLIDER_OFFSET_Y), (int)(_destRect.Width * COLLIDER_FRACTION_WIDTH), (int)(_destRect.Height * COLLIDER_FRACTION_HEIGHT)));
 
+            _particleSpawnCoolDown.Start(0);
+
+
+        }
+
+        private void SpawnShipParticleOnFinish() {
+            ref PlayerShipParticle particle = ref _shipParticlesPool.Create(out bool success);
+            if (success) {
+                int randAngle = _random.Next(225, 315);
+                // int randAngle = _random.Next(270, 270);
+                Vector2 randVelocity = new Vector2(randAngle, randAngle);
+                // randVelocity.X = (float)Math.Cos(MathHelper.ToRadians(randVelocity.X) + 1 * Math.PI);
+                // randVelocity.Y = (float)Math.Sin(MathHelper.ToRadians(randVelocity.Y) + 1 * Math.PI);
+
+                randVelocity.X = (float)-Math.Cos(MathHelper.ToRadians(randVelocity.X));
+                randVelocity.Y = (float)-Math.Sin(MathHelper.ToRadians(randVelocity.Y));
+
+                // System.Console.WriteLine((MathHelper.ToDegrees((float)Math.Atan2(randVelocity.Y, randVelocity.X)) + 90) % 360);
+
+                int particleSpeed = _random.Next(350, 400);
+                randVelocity.Normalize();
+                randVelocity *= particleSpeed;
+                particle.Velocity = randVelocity;
+                particle.Position = new Vector2(_position.X + _destRect.Width * 0.5f - 7.5f, _position.Y + _destRect.Height * 0.7f);
+            }
+
+            _particleSpawnCoolDown.Start(ClengineCore.LogicGameTime.TotalGameTime.TotalMilliseconds);
         }
 
         private void ShootAnimationFinish() {
@@ -72,6 +104,7 @@ namespace SpaceBar.Entities {
 
         public override void Draw() {
             _shipParticlesPool.Draw();
+            _lasersPool.Draw();
             ClengineCore.SpriteBatch.Draw(_texture, _destRect, _srcRectangle, Color.White, 0.0f, Vector2.Zero, SpriteEffects.None, 1f);
             _collider.Draw();
             // ClengineCore.SpriteBatch.Draw(_texture, _position, _srcRectangle, Color.White, 0.0f, _origin, _scale, SpriteEffects.None, 1);
@@ -80,10 +113,21 @@ namespace SpaceBar.Entities {
         public void LoadContent() {
             _texture = ClengineCore.Content.Load<Texture2D>("images/player");
             _srcRectangle = new Rectangle(32, 0, 32, 32);
+            _laserTexture = ClengineCore.Content.Load<Texture2D>("images/player_laser");
             // _origin = new Vector2(_srcRectangle.Width / 2f, _srcRectangle.Height / 2f);
 
             color = new Texture2D(ClengineCore.GraphicsDevice, 1, 1);
             color.SetData([Color.White]);
+
+
+            _lasersPool.InitEachItems((ref PlayerLaser laser) => {
+                const int widthLaserTexture = 8;
+
+                laser.Position = new Vector2(69, 69);
+                laser.Texture = _laserTexture;
+                laser.SrcRect = new Rectangle(0, 0, 8, 8);
+                laser.DestRect = new Rectangle(0, 0, (int)(widthLaserTexture * SCALE), (int)(widthLaserTexture * SCALE));
+            });
         }
 
         public override void Update() {
@@ -106,8 +150,10 @@ namespace SpaceBar.Entities {
 
 
 
+            _particleSpawnCoolDown.Update(ClengineCore.LogicGameTime.TotalGameTime.TotalMilliseconds);
 
             _shipParticlesPool.Update();
+            _lasersPool.Update();
         }
 
         private void ClampToWindowsBound() {
@@ -138,21 +184,29 @@ namespace SpaceBar.Entities {
         private void ManageShootingEvent() {
             double totalMilliSeconds = ClengineCore.LogicGameTime.TotalGameTime.TotalMilliseconds;
             bool isShooting = ClengineCore.Input.Keyboard.IsKeyDownSpace();
-            if (isShooting && _canShoot) {
+            if (isShooting && _canShoot && !_lasersPool.IsFull) {
                 //skip one frame
                 _shootAnimation.Play(totalMilliSeconds - _shootAnimation.FrameDurationMs);
                 _canShoot = false;
 
-
-                ref PlayerShipParticle particle = ref _shipParticlesPool.Create(out bool success);
+                ref PlayerLaser laser = ref _lasersPool.Create(out bool success);
+                // const float offsetLaser = 0.5f / 4f; // 4 / 8. 0.5f le laser commence au milieu
+                const float offsetLaser =0.28125f; // 4 / 8. 0.5f le laser commence au milieu //0.75
+                const float offsetLaserY = 0.09375f / 4f;
                 if (success) {
-                    Vector2 randVelocity = new Vector2(_random.Next(0, 359), _random.Next(0, 359));
-                    randVelocity.X = (float)Math.Cos(MathHelper.ToRadians(randVelocity.X));
-                    randVelocity.Y = (float)Math.Sin(MathHelper.ToRadians(randVelocity.Y));
-                    randVelocity.Normalize();
-                    randVelocity *= 500;
-                    particle.Velocity = randVelocity;
-                    particle.Position = _position;
+                    // laser.Position = new Vector2((_position.X + _destRect.Width * offsetLaser) - 8 * 3 + 0.625f * 8, _position.Y + _destRect.Height * offsetLaserY);
+                    laser.Velocity = new Vector2(0, -MAX_VELOCITY); 
+                    laser.Position = new Vector2(_position.X + (_destRect.Width * offsetLaser - (24 * 0.625f)), _position.Y + _destRect.Height * offsetLaserY);
+                    // laser.Position = new Vector2(_position.X + (_destRect.Width * 0.75f - (24 * 0.625f)), _position.Y + _destRect.Height * offsetLaserY);
+                }
+                
+                laser = ref _lasersPool.Create(out bool success_);
+                // const float offsetLaser = 0.5f / 4f; // 4 / 8. 0.5f le laser commence au milieu
+                if (success_) {
+                    // laser.Position = new Vector2((_position.X + _destRect.Width * offsetLaser) - 8 * 3 + 0.625f * 8, _position.Y + _destRect.Height * offsetLaserY); 
+                    // laser.Position = new Vector2(_position.X + (_destRect.Width * offsetLaser - (24 * 0.625f)), _position.Y + _destRect.Height * offsetLaserY); 
+                    laser.Velocity = new Vector2(0, -MAX_VELOCITY);
+                    laser.Position = new Vector2(_position.X + (_destRect.Width * 0.75f - (24 * 0.625f)), _position.Y + _destRect.Height * offsetLaserY); 
                 }
             }
 
@@ -176,11 +230,14 @@ namespace SpaceBar.Entities {
         }
 
         private void ManageIdleState(float dT) {
+            return;
             if (direction == Vector2.Zero) {
                 Scale(_pulse.Update(dT));
+                _particleSpawnCoolDown.DelayMs = 200;
             } else {
                 Scale(new Vector2(SCALE, SCALE));
                 _pulse.ResetTimer();
+                _particleSpawnCoolDown.DelayMs = 75;
             }
 
         }
