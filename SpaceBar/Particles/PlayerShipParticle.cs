@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 using Clengine;
 using Clengine.Pools;
 using Clengine.Texture;
+using Clengine.Utils;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using SpaceBar.Entities;
 
 namespace SpaceBar.Particles {
@@ -23,6 +25,17 @@ namespace SpaceBar.Particles {
         public Vector2 Velocity { get => _velocity; set => _velocity = value; }
 
         private Rectangle _destRect = new Rectangle(0, 0, 15, 15);
+        public Rectangle DestRect { get => _destRect; set => _destRect = value; }
+
+        private Rectangle _srcRect = new Rectangle(0, 0, 15, 15);
+        public Rectangle SrcRect { get => _srcRect; set => _srcRect = value; }
+
+        public Texture2D Texture { get; set; }
+
+
+        public Scale Scale { get; set; } = new Scale();
+
+    
 
         private float _opacity = 1.0f;
         private float _tOpacity = 0.0f;
@@ -38,7 +51,8 @@ namespace SpaceBar.Particles {
         }
 
         public void Draw() {
-            ClengineCore.SpriteBatch.Draw(TextureColor.White, _destRect, _currentColor * _opacity);
+            ClengineCore.SpriteBatch.Draw(Texture, _destRect, _srcRect, _currentColor * _opacity, 0f, Vector2.Zero, SpriteEffects.None, 1f);
+            // ClengineCore.SpriteBatch.Draw(TextureColor.White, _destRect, _currentColor * _opacity);
         }
 
         public bool MustBeReturnedToPool() {
@@ -56,11 +70,14 @@ namespace SpaceBar.Particles {
 
             _opacity = MathHelper.Lerp(1.0f, 0.0f, _tOpacity);
             _currentColor = Color.Lerp(Color.Red, Color.Yellow, _tOpacity);
+
+            Vector2 newScale = Vector2.Lerp(new Vector2(0.75f, 0.75f), new Vector2(0f, 0f), _tOpacity);
+            this.Scale.Update(ref _position, ref _destRect, newScale);
             _tOpacity += dT * decaySpeed;
             if (_tOpacity > 1f) {
                 _tOpacity = 1f;
             }
-            _position += _velocity * dT;
+            // _position += _velocity * dT;
             _destRect.X = (int)Math.Round(_position.X);
             _destRect.Y = (int)Math.Round(_position.Y);
 

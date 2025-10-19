@@ -1,5 +1,7 @@
-﻿using Clengine;
+﻿using System;
+using Clengine;
 using Clengine.Texture;
+using Clengine.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -11,7 +13,13 @@ public class Game : ClengineCore {
 
     private PlayerTopDown _player = new PlayerTopDown();
 
+
+    private Vector2 _position = new Vector2(0, 0);
+    private Rectangle _rectangle = new Rectangle(0, 0, 30, 30);
+    private Scale _scale = new Scale();
+
     public Game() : base("Space Bar", 560, 720, false) {
+        _scale.SetBaseDimension(_rectangle.Width, _rectangle.Height).SetOrigin(new Vector2(0.5f, 0.5f));
     }
 
     protected override void Initialize() {
@@ -31,6 +39,9 @@ public class Game : ClengineCore {
         Input.Update();
         _player.Update();
 
+        
+        // _rectangle.X = (int)Math.Round(_position.X);
+        // _rectangle.Y = (int)Math.Round(_position.Y);
  
 
         base.Update(gameTime);

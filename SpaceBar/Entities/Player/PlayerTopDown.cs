@@ -91,7 +91,7 @@ namespace SpaceBar.Entities.Player {
                 // randVelocity.Normalize();
                 // randVelocity *= particleSpeed;
                 // particle.Velocity = randVelocity;
-                particle.Position = new Vector2(_position.X + _destRect.Width * 0.5f - 7.5f, _position.Y + _destRect.Height * 0.82f);
+                particle.Position = new Vector2(_position.X + _destRect.Width * 0.5f, _position.Y + _destRect.Height * 0.9f);
             }
 
             _particleSpawnCoolDown.Start(ClengineCore.LogicGameTime.TotalGameTime.TotalMilliseconds);
@@ -130,6 +130,14 @@ namespace SpaceBar.Entities.Player {
                 laser.Texture = _laserTexture;
                 laser.SrcRect = new Rectangle(0, 0, 8, 8);
                 laser.DestRect = new Rectangle(0, 0, (int)(widthLaserTexture * SCALE), (int)(widthLaserTexture * SCALE));
+            });
+
+            _shipParticlesPool.InitEachItems((ref PlayerShipParticle particle) => {
+                const int widthTexture = 8;
+                particle.Texture = _flameTexture;
+                particle.SrcRect = new Rectangle(0, 0, 8, 8);
+                particle.DestRect = new Rectangle(0, 0, (int)(widthTexture * SCALE), (int)(widthTexture * SCALE));
+                particle.Scale.SetBaseDimension((int)(widthTexture * SCALE), (int)(widthTexture * SCALE)).SetOrigin(new Vector2(0.5f, 0.5f));
             });
         }
 
