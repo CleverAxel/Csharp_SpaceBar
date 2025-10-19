@@ -48,6 +48,9 @@ namespace SpaceBar.Entities.Player {
         private PoolEntities<PlayerShipParticle> _shipParticlesPool = new PoolEntities<PlayerShipParticle>(30);
         private PoolEntities<PlayerLaser> _lasersPool = new PoolEntities<PlayerLaser>(20);
 
+
+        private Scale _scaleComponent = new Scale();
+
         public PlayerTopDown() {
             const int withPlayerTexture = 32;
             _shootCoolDown.OnFinish += ShootCoolDownFinish;
@@ -55,8 +58,10 @@ namespace SpaceBar.Entities.Player {
             _particleSpawnCoolDown.OnFinish += SpawnShipParticleOnFinish;
 
             _position = new Vector2(0, 0);
-            UpdateDestRectDimension(withPlayerTexture, withPlayerTexture);
-            Scale(new Vector2(3f, 3f));
+            _scaleComponent.SetBaseDimension(withPlayerTexture, withPlayerTexture).SetOrigin(new Vector2(0.5f, 0.5f));
+            _scaleComponent.Update(ref _position, ref _destRect, new Vector2(SCALE, SCALE));
+            // UpdateDestRectDimension(withPlayerTexture, withPlayerTexture);
+            // Scale(new Vector2(3f, 3f));
 
             _collider
             .SetOffsetHost(new Vector2(COLLIDER_OFFSET_X, COLLIDER_OFFSET_Y))
@@ -236,10 +241,12 @@ namespace SpaceBar.Entities.Player {
 
         private void ManageIdleState(float dT) {
             if (direction == Vector2.Zero) {
-                Scale(_pulse.Update(dT));
+                _scaleComponent.Update(ref _position, ref _destRect, _pulse.Update(dT));
+                // Scale(_pulse.Update(dT));
                 _particleSpawnCoolDown.DelayMs = 200;
             } else {
-                Scale(new Vector2(SCALE, SCALE));
+                _scaleComponent.Update(ref _position, ref _destRect, new Vector2(SCALE, SCALE));
+                // Scale(new Vector2(SCALE, SCALE));
                 _pulse.ResetTimer();
                 _particleSpawnCoolDown.DelayMs = 16; //75
             }
