@@ -246,7 +246,6 @@ namespace SpaceBar.Entities.Player {
                 _particleSpawnCoolDown.DelayMs = 200;
             } else {
                 _scaleComponent.Update(ref _position, ref _destRect, new Vector2(SCALE, SCALE));
-                // Scale(new Vector2(SCALE, SCALE));
                 _pulse.ResetTimer();
                 _particleSpawnCoolDown.DelayMs = 16; //75
             }

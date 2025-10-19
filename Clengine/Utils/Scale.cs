@@ -23,6 +23,10 @@ namespace Clengine.Utils {
         }
 
         public void Update(ref Vector2 position, ref Rectangle destRect, Vector2 scale) {
+            if (scale == _scale)
+                return;
+                
+            _scale = scale;
             Vector2 anchor = new Vector2(
                 position.X + destRect.Width * _origin.X,
                 position.Y + destRect.Height * _origin.Y
