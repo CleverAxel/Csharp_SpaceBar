@@ -55,7 +55,7 @@ namespace SpaceBar.Entities.Player {
             const int withPlayerTexture = 32;
             _shootCoolDown.OnFinish += ShootCoolDownFinish;
             _shootAnimation.OnFinish += ShootAnimationFinish;
-            _particleSpawnCoolDown.OnFinish += SpawnShipParticleOnFinish;
+            // _particleSpawnCoolDown.OnFinish += SpawnShipParticleOnFinish;
 
             _position = new Vector2(0, 0);
             _scaleComponent.SetBaseDimension(withPlayerTexture, withPlayerTexture).SetOrigin(new Vector2(0.5f, 0.5f));
@@ -74,19 +74,18 @@ namespace SpaceBar.Entities.Player {
             _particleSpawnCoolDown.Start(0);
 
 
+
+            ClampToWindowsBound();
         }
 
         private void SpawnShipParticleOnFinish() {
             ref PlayerShipParticle particle = ref _shipParticlesPool.Create(out bool success);
             if (success) {
-                int randAngle = _random.Next(225, 315);
                 // int randAngle = _random.Next(270, 270);
-                Vector2 randVelocity = new Vector2(randAngle, randAngle);
                 // randVelocity.X = (float)Math.Cos(MathHelper.ToRadians(randVelocity.X) + 1 * Math.PI);
                 // randVelocity.Y = (float)Math.Sin(MathHelper.ToRadians(randVelocity.Y) + 1 * Math.PI);
 
-                randVelocity.X = (float)-Math.Cos(MathHelper.ToRadians(randVelocity.X));
-                randVelocity.Y = (float)-Math.Sin(MathHelper.ToRadians(randVelocity.Y));
+
 
                 // System.Console.WriteLine((MathHelper.ToDegrees((float)Math.Atan2(randVelocity.Y, randVelocity.X)) + 90) % 360);
 
@@ -96,10 +95,9 @@ namespace SpaceBar.Entities.Player {
                 // randVelocity.Normalize();
                 // randVelocity *= particleSpeed;
                 // particle.Velocity = randVelocity;
-                particle.Position = new Vector2(_position.X + _destRect.Width * 0.5f, _position.Y + _destRect.Height * 0.9f);
+                particle.Position = new Vector2(_position.X + _destRect.Width * 0.5f - particle.DestRect.Width * 0.5f, _position.Y + _destRect.Height * 0.9f - particle.DestRect.Height * 0.5f);
             }
 
-            _particleSpawnCoolDown.Start(ClengineCore.LogicGameTime.TotalGameTime.TotalMilliseconds);
         }
 
         private void ShootAnimationFinish() {
@@ -152,10 +150,13 @@ namespace SpaceBar.Entities.Player {
 
             if (direction != Vector2.Zero || velocity != Vector2.Zero) {
                 Displace(dT);
+                if (direction.Y == -1 || direction.X != 0 && direction.Y != 1)
+                    SpawnShipParticleOnFinish();
             }
             ManageTiltState();
-
             ManageIdleState(dT);
+
+
             ManageShootingEvent();
 
             _collider
@@ -206,17 +207,17 @@ namespace SpaceBar.Entities.Player {
                 _canShoot = false;
 
                 ref PlayerLaser laser = ref _lasersPool.Create(out bool success);
-                const float offsetLaser =0.28125f;
+                const float offsetLaser = 0.28125f;
                 const float offsetLaserY = 0.25f;
                 if (success) {
-                    laser.Velocity = new Vector2(0, -MAX_VELOCITY); 
+                    laser.Velocity = new Vector2(0, -MAX_VELOCITY);
                     laser.Position = new Vector2(_position.X + (_destRect.Width * offsetLaser - (24 * 0.625f)), _position.Y + _destRect.Height * offsetLaserY);
                 }
-                
+
                 ref PlayerLaser laser_ = ref _lasersPool.Create(out bool success_);
                 if (success_) {
                     laser_.Velocity = new Vector2(0, -MAX_VELOCITY);
-                    laser_.Position = new Vector2(_position.X + (_destRect.Width * 0.75f - (24 * 0.625f)), _position.Y + _destRect.Height * offsetLaserY); 
+                    laser_.Position = new Vector2(_position.X + (_destRect.Width * 0.75f - (24 * 0.625f)), _position.Y + _destRect.Height * offsetLaserY);
                 }
             }
 
@@ -243,11 +244,11 @@ namespace SpaceBar.Entities.Player {
             if (direction == Vector2.Zero) {
                 _scaleComponent.Update(ref _position, ref _destRect, _pulse.Update(dT));
                 // Scale(_pulse.Update(dT));
-                _particleSpawnCoolDown.DelayMs = 200;
+                // _particleSpawnCoolDown.DelayMs = 200;
             } else {
                 _scaleComponent.Update(ref _position, ref _destRect, new Vector2(SCALE, SCALE));
                 _pulse.ResetTimer();
-                _particleSpawnCoolDown.DelayMs = 16; //75
+                // _particleSpawnCoolDown.DelayMs = 16; //75
             }
 
         }

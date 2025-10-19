@@ -63,6 +63,7 @@ namespace SpaceBar.Particles {
             return false;
         }
 
+
         public void Update() {
             const float decaySpeed = 6.0f;
             float dT = ClengineCore.LogicDeltaTime;
@@ -78,8 +79,8 @@ namespace SpaceBar.Particles {
                 _tOpacity = 1f;
             }
             // _position += _velocity * dT;
-            _destRect.X = (int)Math.Round(_position.X);
-            _destRect.Y = (int)Math.Round(_position.Y);
+            // _destRect.X = (int)Math.Round(_position.X);
+            // _destRect.Y = (int)Math.Round(_position.Y);
 
 
         }

@@ -11,7 +11,7 @@ namespace SpaceBar;
 
 public class Game : ClengineCore {
 
-    private PlayerTopDown _player = new PlayerTopDown();
+    private PlayerTopDown _player;
 
 
     private Vector2 _position = new Vector2(0, 0);
@@ -24,6 +24,7 @@ public class Game : ClengineCore {
 
     protected override void Initialize() {
         base.Initialize();
+        _player = new PlayerTopDown();
         _player.LoadContent();
     }
 
