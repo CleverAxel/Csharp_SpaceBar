@@ -40,12 +40,7 @@ namespace SpaceBar.Entities.Player {
         }
 
         public bool MustBeReturnedToPool() {
-            if (_position.Y <= 0) {
-                _position = Vector2.One;
-                return true;
-            }
-
-            return false;
+            return _position.Y <= 0;
         }
 
         public void Update() {

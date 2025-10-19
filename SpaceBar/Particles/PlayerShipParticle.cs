@@ -15,6 +15,7 @@ namespace SpaceBar.Particles {
         public PlayerShipParticle() {
         }
 
+        private Color _currentColor = Color.Red;
         private Vector2 _position;
         public Vector2 Position { get => _position; set => _position = value; }
 
@@ -33,10 +34,11 @@ namespace SpaceBar.Particles {
         public void Reset() {
             _tOpacity = 0f;
             _opacity = 1f;
+            _currentColor = Color.Red;
         }
 
         public void Draw() {
-            ClengineCore.SpriteBatch.Draw(TextureColor.White, _destRect, Color.White * _opacity);
+            ClengineCore.SpriteBatch.Draw(TextureColor.White, _destRect, _currentColor * _opacity);
         }
 
         public bool MustBeReturnedToPool() {
@@ -48,11 +50,12 @@ namespace SpaceBar.Particles {
         }
 
         public void Update() {
-            const float decaySpeed = 3.0f;
+            const float decaySpeed = 6.0f;
             float dT = ClengineCore.LogicDeltaTime;
 
 
             _opacity = MathHelper.Lerp(1.0f, 0.0f, _tOpacity);
+            _currentColor = Color.Lerp(Color.Red, Color.Yellow, _tOpacity);
             _tOpacity += dT * decaySpeed;
             if (_tOpacity > 1f) {
                 _tOpacity = 1f;

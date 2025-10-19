@@ -22,6 +22,7 @@ namespace SpaceBar.Entities.Player {
         private AABB _collider = new AABB();
         private Texture2D _texture;
         private Texture2D _laserTexture;
+        private Texture2D _flameTexture;
         private Rectangle _srcRectangle;
         // private Vector2 _scale = new Vector2(SCALE, SCALE);
         private Pulse _pulse = new Pulse(SCALE - 0.1f, SCALE, SCALE + 0.3f, 2.0f);
@@ -44,8 +45,8 @@ namespace SpaceBar.Entities.Player {
 
         private Timer _particleSpawnCoolDown = new Timer(500);
 
-        private PoolEntities<PlayerShipParticle> _shipParticlesPool = new PoolEntities<PlayerShipParticle>(40);
-        private PoolEntities<PlayerLaser> _lasersPool = new PoolEntities<PlayerLaser>(2);
+        private PoolEntities<PlayerShipParticle> _shipParticlesPool = new PoolEntities<PlayerShipParticle>(30);
+        private PoolEntities<PlayerLaser> _lasersPool = new PoolEntities<PlayerLaser>(20);
 
         public PlayerTopDown() {
             const int withPlayerTexture = 32;
@@ -84,11 +85,13 @@ namespace SpaceBar.Entities.Player {
 
                 // System.Console.WriteLine((MathHelper.ToDegrees((float)Math.Atan2(randVelocity.Y, randVelocity.X)) + 90) % 360);
 
-                int particleSpeed = _random.Next(350, 400);
-                randVelocity.Normalize();
-                randVelocity *= particleSpeed;
-                particle.Velocity = randVelocity;
-                particle.Position = new Vector2(_position.X + _destRect.Width * 0.5f - 7.5f, _position.Y + _destRect.Height * 0.7f);
+
+                //here
+                // int particleSpeed = _random.Next(350, 400);
+                // randVelocity.Normalize();
+                // randVelocity *= particleSpeed;
+                // particle.Velocity = randVelocity;
+                particle.Position = new Vector2(_position.X + _destRect.Width * 0.5f - 7.5f, _position.Y + _destRect.Height * 0.82f);
             }
 
             _particleSpawnCoolDown.Start(ClengineCore.LogicGameTime.TotalGameTime.TotalMilliseconds);
@@ -103,10 +106,10 @@ namespace SpaceBar.Entities.Player {
         }
 
         public override void Draw() {
-            _shipParticlesPool.Draw();
             _lasersPool.Draw();
             ClengineCore.SpriteBatch.Draw(_texture, _destRect, _srcRectangle, Color.White, 0.0f, Vector2.Zero, SpriteEffects.None, 1f);
-            _collider.Draw();
+            _shipParticlesPool.Draw();
+            // _collider.Draw();
             // ClengineCore.SpriteBatch.Draw(_texture, _position, _srcRectangle, Color.White, 0.0f, _origin, _scale, SpriteEffects.None, 1);
         }
 
@@ -114,6 +117,7 @@ namespace SpaceBar.Entities.Player {
             _texture = ClengineCore.Content.Load<Texture2D>("images/player");
             _srcRectangle = new Rectangle(32, 0, 32, 32);
             _laserTexture = ClengineCore.Content.Load<Texture2D>("images/player_laser");
+            _flameTexture = ClengineCore.Content.Load<Texture2D>("images/flame");
             // _origin = new Vector2(_srcRectangle.Width / 2f, _srcRectangle.Height / 2f);
 
             color = new Texture2D(ClengineCore.GraphicsDevice, 1, 1);
@@ -122,7 +126,6 @@ namespace SpaceBar.Entities.Player {
 
             _lasersPool.InitEachItems((ref PlayerLaser laser) => {
                 const int widthLaserTexture = 8;
-
                 laser.Position = new Vector2(69, 69);
                 laser.Texture = _laserTexture;
                 laser.SrcRect = new Rectangle(0, 0, 8, 8);
@@ -190,23 +193,17 @@ namespace SpaceBar.Entities.Player {
                 _canShoot = false;
 
                 ref PlayerLaser laser = ref _lasersPool.Create(out bool success);
-                // const float offsetLaser = 0.5f / 4f; // 4 / 8. 0.5f le laser commence au milieu
-                const float offsetLaser =0.28125f; // 4 / 8. 0.5f le laser commence au milieu //0.75
-                const float offsetLaserY = 0.09375f / 4f;
+                const float offsetLaser =0.28125f;
+                const float offsetLaserY = 0.25f;
                 if (success) {
-                    // laser.Position = new Vector2((_position.X + _destRect.Width * offsetLaser) - 8 * 3 + 0.625f * 8, _position.Y + _destRect.Height * offsetLaserY);
                     laser.Velocity = new Vector2(0, -MAX_VELOCITY); 
                     laser.Position = new Vector2(_position.X + (_destRect.Width * offsetLaser - (24 * 0.625f)), _position.Y + _destRect.Height * offsetLaserY);
-                    // laser.Position = new Vector2(_position.X + (_destRect.Width * 0.75f - (24 * 0.625f)), _position.Y + _destRect.Height * offsetLaserY);
                 }
                 
-                laser = ref _lasersPool.Create(out bool success_);
-                // const float offsetLaser = 0.5f / 4f; // 4 / 8. 0.5f le laser commence au milieu
+                ref PlayerLaser laser_ = ref _lasersPool.Create(out bool success_);
                 if (success_) {
-                    // laser.Position = new Vector2((_position.X + _destRect.Width * offsetLaser) - 8 * 3 + 0.625f * 8, _position.Y + _destRect.Height * offsetLaserY); 
-                    // laser.Position = new Vector2(_position.X + (_destRect.Width * offsetLaser - (24 * 0.625f)), _position.Y + _destRect.Height * offsetLaserY); 
-                    laser.Velocity = new Vector2(0, -MAX_VELOCITY);
-                    laser.Position = new Vector2(_position.X + (_destRect.Width * 0.75f - (24 * 0.625f)), _position.Y + _destRect.Height * offsetLaserY); 
+                    laser_.Velocity = new Vector2(0, -MAX_VELOCITY);
+                    laser_.Position = new Vector2(_position.X + (_destRect.Width * 0.75f - (24 * 0.625f)), _position.Y + _destRect.Height * offsetLaserY); 
                 }
             }
 
@@ -230,14 +227,13 @@ namespace SpaceBar.Entities.Player {
         }
 
         private void ManageIdleState(float dT) {
-            return;
             if (direction == Vector2.Zero) {
                 Scale(_pulse.Update(dT));
                 _particleSpawnCoolDown.DelayMs = 200;
             } else {
                 Scale(new Vector2(SCALE, SCALE));
                 _pulse.ResetTimer();
-                _particleSpawnCoolDown.DelayMs = 75;
+                _particleSpawnCoolDown.DelayMs = 16; //75
             }
 
         }

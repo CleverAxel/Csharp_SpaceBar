@@ -20,10 +20,11 @@ namespace SpaceBar.Entities {
                 if (entity.IsInUse) {
                     entity.Update();
                     localCount++;
-                }
-                if (entity.MustBeReturnedToPool()) {
-                    ReturnToPool(i);
-                    localCount--;
+                    
+                    if (entity.MustBeReturnedToPool()) {
+                        ReturnToPool(i);
+                        localCount--;
+                    }
                 }
 
                 if (localCount == _itemInUseCount)
